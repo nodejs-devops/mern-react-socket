@@ -1,0 +1,30 @@
+version: '3.9'
+
+services:
+  blog-database:
+    container_name: mongo
+    image: mongo
+    ports:
+      - '27017:27017'
+
+  blog-backend:
+    container_name: backend
+    build: backend/
+    environment:
+      - PORT=3001
+      - DATABASE_URL=mongodb://host.docker.internal:27017/blog
+    ports:
+      - '3001:3001'
+    depends_on:
+      - blog-database
+
+  blog-frontend:
+    container_name: frontend
+    build:
+      context: .
+      args:
+        VITE_BACKEND_URL: http://localhost:3001/api/v1
+    ports:
+      - '3000:80'
+    depends_on:
+      - blog-backend
